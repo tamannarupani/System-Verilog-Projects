@@ -1,0 +1,59 @@
+module faultinjectiontestbench();
+
+logic clk, reset; // Clock and Reset are internal
+logic [7:0]A; // Input A
+logic [3:0]B; // Input B
+logic [2:0]f_loc; // Input for location of fault
+logic [1:0]f_type; // Input for tyoe of fault
+logic [7:0]Y; // Output of the circuit
+logic [7:0]Yexpected; // Expected output
+logic [7:0]C; // Intermediate value for fault injection
+logic [7:0]Cexpected; //Expected value of C after faults injected
+logic [7:0]Cin; // Self check
+reg [7:0]vectornum, errors; // Bookkeeping variables
+reg [32:0]testvectors[0:100];// Array of testvectors
+
+faultinjectioncode dut (.A(A), .B(B), .f_loc(f_loc), .f_type(f_type), .C(C), .Y(Y));  // Instantiate device under test
+
+// Generate clock
+always // No sensitivity list, so it always executes
+begin
+clk = 1; #5; clk = 0; #5; // 10ns period
+end
+
+// At start of test, load vectors
+// And pulse reset
+initial // Will execute at the beginning once
+begin              
+$readmemb("D:/MS Sem 2/ECE 469 HDL/Project 1/Part2/faultinjectiontv.txt", testvectors); // Read vectors
+vectornum = 0; errors = 0; // Initialize
+reset = 1; #10; reset = 0; // Apply reset wait
+end
+
+// Apply test vectors on rising edge of clk
+always @(posedge clk)
+begin
+#1; {A, B, f_loc, f_type, Cexpected, Yexpected} = testvectors[vectornum];
+end
+
+// Check results on falling edge of clk
+always @(negedge clk)
+if (~reset) // Skip during reset
+begin
+if (Y !== Yexpected && C !== Cexpected)
+begin
+$display("Error: inputs = %b", {A, B});
+$display(" outputs = %b (%b expected) and %b (%b expected) ",Y,Yexpected,C,Cexpected);
+errors = errors + 1;
+end
+
+// Increment array index and read next testvector
+vectornum = vectornum + 1;
+if ( vectornum == 50)
+begin
+$display("%d tests completed with %d errors",
+vectornum, errors);
+$finish; // End simulation
+end
+end
+endmodule 

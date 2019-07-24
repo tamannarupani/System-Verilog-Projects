@@ -1,0 +1,28 @@
+C:/intelFPGA/17.1/mipsmodified.sv {1 {vlog -work work -sv -stats=none C:/intelFPGA/17.1/mipsmodified.sv
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module topm
+-- Compiling module dmem
+-- Compiling module imem
+-- Compiling module mips
+-- Compiling module controller
+-- Compiling module maindec
+-- Compiling module aludec
+-- Compiling module datapath
+-- Compiling module alu
+-- Compiling module regfile
+-- Compiling module adder
+-- Compiling module sl2
+-- Compiling module flopr
+-- Compiling module mux2
+
+Top level modules:
+	topm
+
+} {} {}} C:/intelFPGA/17.1/testbenchmod.sv {1 {vlog -work work -sv -stats=none C:/intelFPGA/17.1/testbenchmod.sv
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module testbenchmod
+
+Top level modules:
+	testbenchmod
+
+} {} {}}

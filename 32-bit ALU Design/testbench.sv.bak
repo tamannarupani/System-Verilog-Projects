@@ -1,0 +1,57 @@
+module testbench();
+
+logic clk, reset; // clock and reset are internal
+logic [31:0]A; 
+logic [31:0]B;
+logic [2:0]F;
+logic [31:0]yexpected;
+logic zeroexp;
+logic zero; // values from testvectors
+logic [31:0]Y; // output of circuit
+reg [31:0]vectornum, errors; // bookkeeping variables
+reg [99:0]testvectors[0:10000];// array of testvectors
+
+alu dut(.F(F), .A(A), .B(B), .Y(Y), .zero(zero));  // instantiate device under test
+
+// generate clock
+always // no sensitivity list, so it always executes
+begin
+clk = 1; #5; clk = 0; #5; // 10ns period
+end
+
+// at start of test, load vectors
+// and pulse reset
+initial // Will execute at the beginning once
+begin              
+$readmemb("D:/MS Sem 2/ECE 469 HDL/Project 1/Part 1/alutv.txt", testvectors); // Read vectors
+vectornum = 0; errors = 0; // Initialize
+reset = 1; #10; reset = 0; // Apply reset wait
+end
+
+// apply test vectors on rising edge of clk
+always @(posedge clk)
+begin
+#1; {F, A, B, yexpected, zeroexp} = testvectors[vectornum];
+end
+
+// check results on falling edge of clk
+always @(negedge clk)
+if (~reset) // skip during reset
+begin
+if (Y !== yexpected)
+begin
+$display("Error: inputs = %b", {F, A, B});
+$display(" outputs = %b (%b expected)",Y,yexpected);
+errors = errors + 1;
+end
+
+// increment array index and read next testvector
+vectornum = vectornum + 1;
+if ( vectornum == 50)
+begin
+$display("%d tests completed with %d errors",
+vectornum, errors);
+$finish; // End simulation
+end
+end
+endmodule 
